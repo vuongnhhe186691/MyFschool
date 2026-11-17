@@ -1,0 +1,17 @@
+[
+  {
+    "name": "10A1",
+    "studentCount": 18,
+    "homeroomTeacher": "Nguyen Van An"
+  },
+  {
+    "name": "10A2",
+    "studentCount": 17,
+    "homeroomTeacher": "Tran Thi Lan"
+  },
+  {
+    "name": "10A3",
+    "studentCount": 16,
+    "homeroomTeacher": "Le Minh Duc"
+  }
+]

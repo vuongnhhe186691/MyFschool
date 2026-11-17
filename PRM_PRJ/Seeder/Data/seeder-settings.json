@@ -1,0 +1,73 @@
+{
+    "forceReseedOnStartup": false,
+    "randomSeed": 20260319,
+    "defaultPasswordHash": "$2a$11$.8Ezqcsy3744aR5Zq0msVOyzRFqWMwpnS0oLvePgYec97s2hmrJbK",
+    "schoolYearName": "2025-2026",
+    "semesterNames": [
+        "HK1",
+        "HK2"
+    ],
+    "teacherNames": [
+        "Nguyen Van An",
+        "Tran Thi Lan",
+        "Le Minh Duc",
+        "Pham Thu Ha",
+        "Hoang Gia Bao",
+        "Vu Thanh Son",
+        "Bui Ngoc Mai",
+        "Do Quang Huy",
+        "Dang Thi Yen",
+        "Phan Duc Long",
+        "Ngo Minh Chau",
+        "Dinh Thanh Tuan"
+    ],
+    "teachersPerSubject": 3,
+    "periodsPerDay": [
+        6,
+        5,
+        6,
+        5,
+        5
+    ],
+    "periodStartTimes": [
+        "07:00",
+        "07:50",
+        "08:40",
+        "09:30",
+        "13:30",
+        "14:20"
+    ],
+    "periodDurationMinutes": 45,
+    "attendanceWeekStart": "2026-03-16",
+    "weeklySubjectFrequency": {
+        "To\u00e1n": 4,
+        "Ng\u1eef v\u0103n": 4,
+        "Ngo\u1ea1i ng\u1eef": 3,
+        "V\u1eadt l\u00fd": 2,
+        "H\u00f3a h\u1ecdc": 2,
+        "Sinh h\u1ecdc": 2,
+        "L\u1ecbch s\u1eed": 2,
+        "\u0110\u1ecba l\u00fd": 2,
+        "Gi\u00e1o d\u1ee5c kinh t\u1ebf v\u00e0 ph\u00e1p lu\u1eadt": 2,
+        "Tin h\u1ecdc": 2,
+        "C\u00f4ng ngh\u1ec7": 1,
+        "Gi\u00e1o d\u1ee5c qu\u1ed1c ph\u00f2ng - an ninh": 1
+    },
+    "conversationMessagesMin": 4,
+    "conversationMessagesMax": 8,
+    "conversationStartDate": "2026-02-17",
+    "conversationDaysSpan": 35,
+    "pickupRecordsPerStudent": 2,
+    "pickupStartDate": "2026-03-10",
+    "pickupDaysSpan": 20,
+    "pickupNotPickedRate": 0.12,
+    "mealDays": 10,
+    "mealStartDate": "2026-03-16",
+    "mealRegistrationRate": 0.82,
+    "refreshTokenCoverageRate": 0.65,
+    "refreshTokenRevokedRate": 0.18,
+    "refreshTokenPerUserMin": 1,
+    "refreshTokenPerUserMax": 2,
+    "refreshTokenExpiryDays": 7,
+    "refreshTokenIssueWindowDays": 14
+}
