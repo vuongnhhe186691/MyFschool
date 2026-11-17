@@ -1,0 +1,17 @@
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.tmp
+*.userosscache
+*.sln.docstates
+[Bb]in/
+[Oo]bj/
+**/bin/
+**/obj/
+**/build/
+**/.dart_tool/
+**/.packages
+**/pubspec.lock
+*.log
