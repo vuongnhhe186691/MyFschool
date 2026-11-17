@@ -1,0 +1,93 @@
+@page
+@model PRM_PRJ.Pages.Admin.ApplicationsModel
+@{
+    ViewData["Title"] = "Đơn từ Học sinh / Phụ huynh / Giáo viên";
+}
+
+<div class="card card-fpt mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-8">
+                <label class="form-label small fw-semibold">Tìm kiếm đơn từ</label>
+                <input type="text" name="Search" value="@Model.Search" class="form-control"
+                       placeholder="Tìm theo tiêu đề, nội dung hoặc người gửi..." />
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-fpt"><i class="bi bi-search me-1"></i> Tìm kiếm</button>
+                <a asp-page="/Admin/Applications" class="btn btn-outline-secondary">Tất cả</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card card-fpt">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold">Danh sách đơn đã tiếp nhận (@Model.TotalItems)</h6>
+        <span class="small text-muted">Trang @Model.PageNumber / @Model.TotalPages</span>
+    </div>
+    <div class="card-body p-0">
+        @if (Model.Applications.Count == 0)
+        {
+            <div class="p-4 text-center text-muted">Không có đơn từ nào.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Tiêu đề</th>
+                            <th>Nội dung</th>
+                            <th>Người gửi</th>
+                            <th>Thời gian gửi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Applications)
+                        {
+                            <tr>
+                                <td class="text-muted">@item.Id</td>
+                                <td class="fw-semibold text-dark">@item.Title</td>
+                                <td style="max-width: 450px; white-space: pre-line;" class="small text-secondary">@item.Content</td>
+                                <td><span class="badge bg-fpt-light text-fpt">@item.CreatedBy</span></td>
+                                <td class="small text-muted">@item.CreatedAt</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+    @if (Model.TotalPages > 1)
+    {
+        <div class="card-footer bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="small text-muted">
+                Hiển thị @Model.Applications.Count / @Model.TotalItems đơn từ
+            </div>
+            <nav aria-label="Pagination">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item @(Model.PageNumber <= 1 ? "disabled" : "")">
+                        <a class="page-link" asp-page="/Admin/Applications" asp-route-PageNumber="@(Model.PageNumber - 1)"
+                           asp-route-Search="@Model.Search">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    @for (var p = Model.StartPage; p <= Model.EndPage; p++)
+                    {
+                        <li class="page-item @(p == Model.PageNumber ? "active" : "")">
+                            <a class="page-link" asp-page="/Admin/Applications" asp-route-PageNumber="@p"
+                               asp-route-Search="@Model.Search">@p</a>
+                        </li>
+                    }
+                    <li class="page-item @(Model.PageNumber >= Model.TotalPages ? "disabled" : "")">
+                        <a class="page-link" asp-page="/Admin/Applications" asp-route-PageNumber="@(Model.PageNumber + 1)"
+                           asp-route-Search="@Model.Search">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+</div>

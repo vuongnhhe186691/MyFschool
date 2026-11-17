@@ -1,0 +1,192 @@
+@page
+@model PRM_PRJ.Pages.Admin.StudentsModel
+@{
+    ViewData["Title"] = "Học sinh & Phân lớp";
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-8">
+        <div class="card card-fpt h-100">
+            <div class="card-body">
+                <form method="get" class="row g-2 align-items-end">
+                    <div class="col-md-5">
+                        <label class="form-label small fw-semibold">Lọc theo Lớp</label>
+                        <select name="ClassId" class="form-select">
+                            <option value="">Tất cả các lớp</option>
+                            @foreach (var cls in Model.Classes)
+                            {
+                                <option value="@cls.Id" selected="@(Model.ClassId == cls.Id)">@cls.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label small fw-semibold">Tìm học sinh</label>
+                        <input type="text" name="Search" value="@Model.Search" class="form-control" placeholder="Mã HS hoặc Họ tên..." />
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-fpt w-100"><i class="bi bi-filter"></i> Lọc</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card card-fpt h-100">
+            <div class="card-body d-flex flex-column justify-content-center gap-2">
+                <button type="button" class="btn btn-outline-fpt w-100" data-bs-toggle="modal" data-bs-target="#importAssignModal">
+                    <i class="bi bi-file-earmark-excel me-1"></i> Import Excel Chuyển lớp
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form method="post" asp-page-handler="AssignClass">
+    <div class="card card-fpt">
+        <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div>
+                <h6 class="mb-0 fw-bold">Danh sách học sinh (@Model.TotalItems)</h6>
+                <small class="text-muted">Trang @Model.PageNumber / @Model.TotalPages</small>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <select name="TargetClassId" class="form-select form-select-sm" style="width: 170px;" required>
+                    <option value="">-- Chọn lớp đích --</option>
+                    @foreach (var cls in Model.Classes)
+                    {
+                        <option value="@cls.Id">@cls.Name</option>
+                    }
+                </select>
+                <button type="submit" class="btn btn-sm btn-fpt">
+                    <i class="bi bi-arrow-left-right me-1"></i> Chuyển lớp đã chọn
+                </button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 40px;">
+                            <input type="checkbox" class="form-check-input" id="selectAllStudents" onclick="toggleAllStudents(this)" />
+                        </th>
+                        <th>Mã HS</th>
+                        <th>Họ và tên</th>
+                        <th>Giới tính</th>
+                        <th>Ngày sinh</th>
+                        <th>Lớp hiện tại</th>
+                        <th>Liên kết PH</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var s in Model.Students)
+                    {
+                        <tr>
+                            <td>
+                                <input type="checkbox" class="form-check-input student-cb" name="SelectedStudentIds" value="@s.Id" />
+                            </td>
+                            <td class="fw-semibold text-fpt">@s.StudentCode</td>
+                            <td class="fw-medium">@s.FullName</td>
+                            <td>@s.Gender</td>
+                            <td>@s.DateOfBirth</td>
+                            <td><span class="badge bg-primary-subtle text-primary border border-primary-subtle">@s.ClassName</span></td>
+                            <td><span class="badge bg-light text-dark border">@s.ParentIds.Count PH</span></td>
+                            <td>
+                                @if (s.IsActive)
+                                {
+                                    <span class="badge bg-success-subtle text-success">Đang học</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Nghỉ</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        @if (Model.TotalPages > 1)
+        {
+            <div class="card-footer bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div class="small text-muted">
+                    Hiển thị @Model.Students.Count / @Model.TotalItems học sinh
+                </div>
+                <nav aria-label="Pagination">
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item @(Model.PageNumber <= 1 ? "disabled" : "")">
+                            <a class="page-link" asp-page="/Admin/Students" asp-route-PageNumber="@(Model.PageNumber - 1)"
+                               asp-route-ClassId="@Model.ClassId" asp-route-Search="@Model.Search">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+                        @for (var p = Model.StartPage; p <= Model.EndPage; p++)
+                        {
+                            <li class="page-item @(p == Model.PageNumber ? "active" : "")">
+                                <a class="page-link" asp-page="/Admin/Students" asp-route-PageNumber="@p"
+                                   asp-route-ClassId="@Model.ClassId" asp-route-Search="@Model.Search">@p</a>
+                            </li>
+                        }
+                        <li class="page-item @(Model.PageNumber >= Model.TotalPages ? "disabled" : "")">
+                            <a class="page-link" asp-page="/Admin/Students" asp-route-PageNumber="@(Model.PageNumber + 1)"
+                               asp-route-ClassId="@Model.ClassId" asp-route-Search="@Model.Search">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        }
+    </div>
+</form>
+
+<!-- Import Modal -->
+<div class="modal fade" id="importAssignModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="ImportAssign" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">
+                        <i class="bi bi-file-earmark-excel text-success me-2"></i>Import chuyển lớp từ Excel
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-light border small mb-3">
+                        <div class="fw-semibold mb-1">Cấu trúc các cột trong file Excel (.xlsx / .csv):</div>
+                        <code>StudentCode | TargetClass</code>
+                        <div class="mt-2 text-muted">
+                            Ví dụ: <code>10A1-001 | 10A2</code> (hỗ trợ nhập Tên lớp hoặc ClassId).
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <a asp-page="/Admin/Students" asp-page-handler="DownloadTemplate" class="btn btn-sm btn-outline-success">
+                            <i class="bi bi-download me-1"></i> Tải file Excel mẫu (.xlsx)
+                        </a>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label small fw-semibold">Chọn file Excel (.xlsx hoặc .csv) *</label>
+                        <input type="file" name="excelFile" accept=".xlsx,.csv" class="form-control" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-fpt">
+                        <i class="bi bi-upload me-1"></i> Thực hiện Import
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function toggleAllStudents(source) {
+            document.querySelectorAll('.student-cb').forEach(cb => cb.checked = source.checked);
+        }
+    </script>
+}

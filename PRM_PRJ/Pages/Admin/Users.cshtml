@@ -1,0 +1,251 @@
+@page
+@model PRM_PRJ.Pages.Admin.UsersModel
+@{
+    ViewData["Title"] = "Quản lý Người dùng";
+}
+
+<div class="card card-fpt mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label small fw-semibold">Tìm kiếm</label>
+                <input type="text" name="Search" value="@Model.Search" class="form-control"
+                       placeholder="Username, SĐT hoặc Email..." />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold">Lọc theo Role</label>
+                <select name="RoleFilter" class="form-select">
+                    <option value="">Tất cả Role</option>
+                    @foreach (var role in Model.AvailableRoles)
+                    {
+                        <option value="@role" selected="@(Model.RoleFilter == role)">@role</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-fpt"><i class="bi bi-search me-1"></i> Lọc</button>
+                <a asp-page="/Admin/Users" class="btn btn-outline-secondary">Đặt lại</a>
+                <button type="button" class="btn btn-success ms-auto" data-bs-toggle="modal" data-bs-target="#createUserModal">
+                    <i class="bi bi-person-plus-fill me-1"></i> Tạo mới
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card card-fpt">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold">Danh sách tài khoản (@Model.TotalItems)</h6>
+        <span class="small text-muted">Trang @Model.PageNumber / @Model.TotalPages</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Username</th>
+                    <th>Số điện thoại</th>
+                    <th>Email</th>
+                    <th>Roles</th>
+                    <th>Trạng thái</th>
+                    <th class="text-end">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var u in Model.Users)
+                {
+                    <tr>
+                        <td class="fw-semibold">@u.Username</td>
+                        <td>@u.PhoneNumber</td>
+                        <td>@(string.IsNullOrWhiteSpace(u.Email) ? "-" : u.Email)</td>
+                        <td>
+                            @foreach (var r in u.Roles)
+                            {
+                                var badgeClass = r switch
+                                {
+                                    "Admin" => "bg-danger",
+                                    "Teacher" => "bg-primary",
+                                    "Parent" => "bg-info text-dark",
+                                    _ => "bg-warning text-dark"
+                                };
+                                <span class="badge @badgeClass me-1">@r</span>
+                            }
+                        </td>
+                        <td>
+                            @if (u.IsActive)
+                            {
+                                <span class="badge bg-success-subtle text-success border border-success-subtle">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Locked</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <button type="button" class="btn btn-sm btn-outline-primary me-1"
+                                    onclick='openEditModal(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(u)))'>
+                                <i class="bi bi-pencil-square"></i> Sửa
+                            </button>
+                            <form method="post" asp-page-handler="Delete" class="d-inline"
+                                  onsubmit="return confirm('Xác nhận xóa người dùng @u.Username?');">
+                                <input type="hidden" name="id" value="@u.Id" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (Model.TotalPages > 1)
+    {
+        <div class="card-footer bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="small text-muted">
+                Hiển thị @Model.Users.Count / @Model.TotalItems tài khoản
+            </div>
+            <nav aria-label="Pagination">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item @(Model.PageNumber <= 1 ? "disabled" : "")">
+                        <a class="page-link" asp-page="/Admin/Users" asp-route-PageNumber="@(Model.PageNumber - 1)"
+                           asp-route-Search="@Model.Search" asp-route-RoleFilter="@Model.RoleFilter">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    @for (var p = Model.StartPage; p <= Model.EndPage; p++)
+                    {
+                        <li class="page-item @(p == Model.PageNumber ? "active" : "")">
+                            <a class="page-link" asp-page="/Admin/Users" asp-route-PageNumber="@p"
+                               asp-route-Search="@Model.Search" asp-route-RoleFilter="@Model.RoleFilter">@p</a>
+                        </li>
+                    }
+                    <li class="page-item @(Model.PageNumber >= Model.TotalPages ? "disabled" : "")">
+                        <a class="page-link" asp-page="/Admin/Users" asp-route-PageNumber="@(Model.PageNumber + 1)"
+                           asp-route-Search="@Model.Search" asp-route-RoleFilter="@Model.RoleFilter">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+</div>
+
+<!-- Create Modal -->
+<div class="modal fade" id="createUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Create">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Tạo người dùng mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Username *</label>
+                        <input name="Input.Username" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Email *</label>
+                        <input name="Input.Email" type="email" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Số điện thoại *</label>
+                        <input name="Input.PhoneNumber" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Mật khẩu *</label>
+                        <input name="Input.Password" type="password" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold d-block">Roles *</label>
+                        @foreach (var role in Model.AvailableRoles)
+                        {
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" name="Input.Roles" value="@role" id="create_role_@role" />
+                                <label class="form-check-label" for="create_role_@role">@role</label>
+                            </div>
+                        }
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="Input.IsActive" value="true" checked id="createIsActive" />
+                        <label class="form-check-label" for="createIsActive">Kích hoạt tài khoản</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-fpt">Lưu người dùng</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Update">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Cập nhật người dùng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="EditUserId" id="editUserId" />
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Username *</label>
+                        <input name="Input.Username" id="editUsername" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Email *</label>
+                        <input name="Input.Email" id="editEmail" type="email" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Số điện thoại *</label>
+                        <input name="Input.PhoneNumber" id="editPhone" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Mật khẩu mới (để trống nếu không đổi)</label>
+                        <input name="Input.Password" type="password" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold d-block">Roles *</label>
+                        @foreach (var role in Model.AvailableRoles)
+                        {
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input edit-role-cb" type="checkbox" name="Input.Roles" value="@role" id="edit_role_@role" />
+                                <label class="form-check-label" for="edit_role_@role">@role</label>
+                            </div>
+                        }
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="Input.IsActive" value="true" id="editIsActive" />
+                        <label class="form-check-label" for="editIsActive">Kích hoạt tài khoản</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-fpt">Cập nhật</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openEditModal(user) {
+            document.getElementById('editUserId').value = user.Id;
+            document.getElementById('editUsername').value = user.Username;
+            document.getElementById('editEmail').value = user.Email || '';
+            document.getElementById('editPhone').value = user.PhoneNumber || '';
+            document.getElementById('editIsActive').checked = user.IsActive;
+
+            document.querySelectorAll('.edit-role-cb').forEach(cb => {
+                cb.checked = user.Roles && user.Roles.includes(cb.value);
+            });
+
+            new bootstrap.Modal(document.getElementById('editUserModal')).show();
+        }
+    </script>
+}

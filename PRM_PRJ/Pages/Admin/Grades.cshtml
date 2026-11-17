@@ -1,0 +1,188 @@
+@page
+@model PRM_PRJ.Pages.Admin.GradesModel
+@{
+    ViewData["Title"] = "Quản lý Điểm số";
+}
+
+<div class="alert alert-info small d-flex align-items-center mb-3">
+    <i class="bi bi-info-circle-fill me-2"></i>
+    <span>Quy định học vụ: Chỉ được chỉnh sửa điểm đã tồn tại (không thêm mới/xóa) và điểm mới phải lớn hơn hoặc bằng điểm hiện tại.</span>
+</div>
+
+<div class="card card-fpt mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold">Lớp</label>
+                <select name="ClassId" class="form-select">
+                    <option value="">Tất cả lớp</option>
+                    @foreach (var c in Model.Classes)
+                    {
+                        <option value="@c.Id" selected="@(Model.ClassId == c.Id)">@c.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold">Môn học</label>
+                <select name="SubjectId" class="form-select">
+                    <option value="">Tất cả môn</option>
+                    @foreach (var s in Model.Subjects)
+                    {
+                        <option value="@s.Id" selected="@(Model.SubjectId == s.Id)">@s.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-semibold">Học kỳ</label>
+                <select name="SemesterId" class="form-select">
+                    <option value="">Tất cả</option>
+                    @foreach (var sem in Model.Semesters)
+                    {
+                        <option value="@sem.Id" selected="@(Model.SemesterId == sem.Id)">@sem.SchoolYear.Name - @sem.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-semibold">Học sinh</label>
+                <input type="text" name="Search" value="@Model.Search" class="form-control" placeholder="Mã / Tên..." />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-fpt w-100"><i class="bi bi-search me-1"></i> Lọc</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card card-fpt">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold">Bảng điểm (@Model.TotalItems bản ghi)</h6>
+        <span class="small text-muted">Trang @Model.PageNumber / @Model.TotalPages</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Lớp</th>
+                    <th>Mã HS</th>
+                    <th>Học sinh</th>
+                    <th>Môn học</th>
+                    <th>Học kỳ</th>
+                    <th>Loại điểm</th>
+                    <th>Điểm</th>
+                    <th>Xếp loại</th>
+                    <th class="text-end">Sửa</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var g in Model.Grades)
+                {
+                    <tr>
+                        <td><span class="badge bg-light text-dark border">@g.ClassName</span></td>
+                        <td class="fw-semibold text-fpt">@g.StudentCode</td>
+                        <td>@g.StudentFullName</td>
+                        <td>@g.SubjectName</td>
+                        <td>@g.AcademicYear - @g.Semester</td>
+                        <td><span class="badge bg-info-subtle text-info-emphasis">@g.AssessmentType</span></td>
+                        <td class="fw-bold">@g.Score.ToString("0.##")</td>
+                        <td>@g.Grade</td>
+                        <td class="text-end">
+                            <button type="button" class="btn btn-sm btn-outline-primary"
+                                    onclick='openEditGradeModal(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(g)))'>
+                                <i class="bi bi-pencil"></i> Sửa điểm
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (Model.TotalPages > 1)
+    {
+        <div class="card-footer bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="small text-muted">
+                Hiển thị @Model.Grades.Count / @Model.TotalItems bản ghi điểm
+            </div>
+            <nav aria-label="Pagination">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item @(Model.PageNumber <= 1 ? "disabled" : "")">
+                        <a class="page-link" asp-page="/Admin/Grades" asp-route-PageNumber="@(Model.PageNumber - 1)"
+                           asp-route-ClassId="@Model.ClassId" asp-route-SubjectId="@Model.SubjectId"
+                           asp-route-SemesterId="@Model.SemesterId" asp-route-Search="@Model.Search">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    @for (var p = Model.StartPage; p <= Model.EndPage; p++)
+                    {
+                        <li class="page-item @(p == Model.PageNumber ? "active" : "")">
+                            <a class="page-link" asp-page="/Admin/Grades" asp-route-PageNumber="@p"
+                               asp-route-ClassId="@Model.ClassId" asp-route-SubjectId="@Model.SubjectId"
+                               asp-route-SemesterId="@Model.SemesterId" asp-route-Search="@Model.Search">@p</a>
+                        </li>
+                    }
+                    <li class="page-item @(Model.PageNumber >= Model.TotalPages ? "disabled" : "")">
+                        <a class="page-link" asp-page="/Admin/Grades" asp-route-PageNumber="@(Model.PageNumber + 1)"
+                           asp-route-ClassId="@Model.ClassId" asp-route-SubjectId="@Model.SubjectId"
+                           asp-route-SemesterId="@Model.SemesterId" asp-route-Search="@Model.Search">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+</div>
+
+<div class="modal fade" id="editGradeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Update">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Cập nhật điểm học sinh</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="GradeId" id="editGradeId" />
+                    <input type="hidden" name="ClassId" value="@Model.ClassId" />
+                    <input type="hidden" name="SubjectId" value="@Model.SubjectId" />
+                    <input type="hidden" name="SemesterId" value="@Model.SemesterId" />
+                    <input type="hidden" name="Search" value="@Model.Search" />
+                    <input type="hidden" name="PageNumber" value="@Model.PageNumber" />
+
+                    <div class="mb-2 small text-muted">
+                        Học sinh: <strong id="editStudentName" class="text-dark"></strong> —
+                        Môn: <strong id="editSubjectName" class="text-dark"></strong> (<span id="editTypeName"></span>)
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Điểm số (từ điểm hiện tại đến 10) *</label>
+                        <input type="number" step="0.1" max="10" name="NewScore" id="editNewScore" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Xếp loại (tự động tính nếu để trống)</label>
+                        <input type="text" name="NewGrade" id="editNewGrade" class="form-control" placeholder="Gioi / Kha / Trung binh / Yeu" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-fpt">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openEditGradeModal(item) {
+            document.getElementById('editGradeId').value = item.GradeId;
+            document.getElementById('editStudentName').textContent = item.StudentCode + ' - ' + item.StudentFullName;
+            document.getElementById('editSubjectName').textContent = item.SubjectName;
+            document.getElementById('editTypeName').textContent = item.AssessmentType;
+            const scoreInput = document.getElementById('editNewScore');
+            scoreInput.value = item.Score;
+            scoreInput.min = item.Score;
+            document.getElementById('editNewGrade').value = item.Grade || '';
+
+            new bootstrap.Modal(document.getElementById('editGradeModal')).show();
+        }
+    </script>
+}

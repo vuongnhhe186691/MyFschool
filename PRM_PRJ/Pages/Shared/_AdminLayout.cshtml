@@ -1,0 +1,406 @@
+@using Microsoft.AspNetCore.Http
+@{
+    var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? string.Empty;
+    var adminUsername = Context.Session.GetString("AdminUsername") ?? "Admin";
+    var adminPhone = Context.Session.GetString("AdminPhone") ?? "";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MyFSchool Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --fpt-orange: #F37021;
+            --fpt-orange-dark: #D95B12;
+            --fpt-orange-light: #FFF3EC;
+            --sidebar-bg: #151B26;
+            --sidebar-width: 268px;
+        }
+
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        body {
+            background-color: #F4F6FB;
+            font-family: 'Plus Jakarta Sans', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+        }
+
+        .admin-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, #161D29 0%, #0F141D 100%);
+            color: #E2E8F0;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 1030;
+            box-shadow: 4px 0 24px rgba(15, 23, 42, 0.08);
+        }
+
+        .sidebar-brand {
+            padding: 1.35rem 1.25rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+
+        .brand-logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #FFA229, var(--fpt-orange));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.35rem;
+            box-shadow: 0 6px 16px rgba(243, 112, 33, 0.4);
+            transition: transform 0.25s ease;
+        }
+
+        .sidebar-brand:hover .brand-logo {
+            transform: rotate(-6deg) scale(1.06);
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0.85rem;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .nav-section-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #64748B;
+            padding: 0.85rem 0.85rem 0.35rem;
+            font-weight: 700;
+        }
+
+        .sidebar .nav-link {
+            color: #CBD5E1;
+            padding: 0.68rem 0.95rem;
+            border-radius: 12px;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            font-weight: 500;
+            transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .sidebar .nav-link:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            transform: translateX(4px);
+        }
+
+        .sidebar .nav-link.active {
+            background: linear-gradient(135deg, #FF942E, var(--fpt-orange));
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 6px 16px rgba(243, 112, 33, 0.32);
+        }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .topbar {
+            background: rgba(255, 255, 255, 0.86);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid #E2E8F0;
+            padding: 0.9rem 1.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+        }
+
+        .page-body {
+            padding: 1.85rem;
+            flex: 1;
+        }
+
+        .btn-fpt {
+            background: linear-gradient(135deg, #FF942E, var(--fpt-orange));
+            border: none;
+            color: #fff;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-fpt:hover, .btn-fpt:focus {
+            background: linear-gradient(135deg, var(--fpt-orange), var(--fpt-orange-dark));
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(243, 112, 33, 0.28);
+        }
+
+        .btn-outline-fpt {
+            border-color: var(--fpt-orange);
+            color: var(--fpt-orange);
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-outline-fpt:hover {
+            background-color: var(--fpt-orange);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .card-fpt {
+            border: 1px solid #E5EAF2;
+            border-radius: 18px;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
+            transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.22s ease;
+            animation: fadeInUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        .anim-delay-1 { animation-delay: 0.06s; }
+        .anim-delay-2 { animation-delay: 0.12s; }
+        .anim-delay-3 { animation-delay: 0.18s; }
+        .anim-delay-4 { animation-delay: 0.24s; }
+
+        .hero-banner-fpt {
+            background: linear-gradient(135deg, #FFA229 0%, #F37021 55%, #D95B12 100%);
+            border-radius: 22px;
+            color: #fff;
+            box-shadow: 0 16px 36px rgba(243, 112, 33, 0.25);
+            animation: fadeInUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        .quick-link-card {
+            border: 1px solid #E5EAF2;
+            border-radius: 16px;
+            background: #fff;
+            transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .quick-link-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(243, 112, 33, 0.45);
+            box-shadow: 0 12px 24px rgba(243, 112, 33, 0.12);
+        }
+
+        .card-fpt:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
+        }
+
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #FFF3EC, #FFE2CE);
+            color: var(--fpt-orange);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.45rem;
+            transition: transform 0.25s ease;
+        }
+
+        .card-fpt:hover .stat-icon {
+            transform: scale(1.08);
+        }
+
+        .table tbody tr {
+            transition: background-color 0.15s ease;
+        }
+
+        .text-fpt {
+            color: var(--fpt-orange) !important;
+        }
+
+        .bg-fpt-light {
+            background-color: var(--fpt-orange-light) !important;
+        }
+
+        .pagination .page-link {
+            color: var(--fpt-orange);
+            border-color: #E5EAF2;
+            border-radius: 10px;
+            margin: 0 2px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .pagination .page-item.active .page-link {
+            background: linear-gradient(135deg, #FF942E, var(--fpt-orange));
+            border-color: var(--fpt-orange);
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(243, 112, 33, 0.25);
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: #94A3B8;
+        }
+
+        @@media (max-width: 991.98px) {
+            .sidebar {
+                position: static;
+                width: 100%;
+                height: auto;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .admin-wrapper {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-logo">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </div>
+                <div>
+                    <div class="fw-bold fs-5 lh-1 text-white">MyFSchool</div>
+                    <small class="text-secondary">Admin Portal</small>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Tổng quan</div>
+                <a class="nav-link @(currentPage.Equals("/Admin/Index", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
+                   asp-page="/Admin/Index">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+
+                <div class="nav-section-label">Quản trị hệ thống</div>
+                <a class="nav-link @(currentPage.Equals("/Admin/Users", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
+                   asp-page="/Admin/Users">
+                    <i class="bi bi-people-fill"></i> Quản lý Người dùng
+                </a>
+                <a class="nav-link @(currentPage.Equals("/Admin/Students", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
+                   asp-page="/Admin/Students">
+                    <i class="bi bi-person-badge-fill"></i> Học sinh &amp; Phân lớp
+                </a>
+
+                <div class="nav-section-label">Học vụ</div>
+                <a class="nav-link @(currentPage.Equals("/Admin/Grades", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
+                   asp-page="/Admin/Grades">
+                    <i class="bi bi-award-fill"></i> Quản lý Điểm số
+                </a>
+                <a class="nav-link @(currentPage.Equals("/Admin/Timetables", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
+                   asp-page="/Admin/Timetables">
+                    <i class="bi bi-calendar3-week-fill"></i> Thời khóa biểu
+                </a>
+
+                <div class="nav-section-label">Giao tiếp &amp; Vận hành</div>
+                <a class="nav-link @(currentPage.Equals("/Admin/Notifications", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
+                   asp-page="/Admin/Notifications">
+                    <i class="bi bi-megaphone-fill"></i> Thông báo Nhà trường
+                </a>
+                <a class="nav-link @(currentPage.Equals("/Admin/Applications", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
+                   asp-page="/Admin/Applications">
+                    <i class="bi bi-file-earmark-text-fill"></i> Đơn từ HS / PH / GV
+                </a>
+
+                <div class="nav-section-label">Developer</div>
+                <a class="nav-link" href="/swagger" target="_blank">
+                    <i class="bi bi-braces"></i> Swagger API Docs
+                </a>
+            </nav>
+
+            <div class="p-3 border-top border-secondary border-opacity-25">
+                <a class="btn btn-outline-light btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
+                   asp-page="/Admin/Logout">
+                    <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                </a>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <header class="topbar">
+                <div>
+                    <h5 class="mb-0 fw-bold text-dark">@ViewData["Title"]</h5>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="text-end d-none sm-block">
+                        <div class="fw-semibold small text-dark">@adminUsername</div>
+                        <div class="text-muted" style="font-size: 0.75rem;">@adminPhone • Admin</div>
+                    </div>
+                    <div class="rounded-circle bg-fpt-light text-fpt d-flex align-items-center justify-content-center fw-bold"
+                         style="width: 38px; height: 38px;">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                </div>
+            </header>
+
+            <main class="page-body">
+                @if (TempData["SuccessMessage"] is string successMsg)
+                {
+                    <div class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        <div>@successMsg</div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+                @if (TempData["ErrorMessage"] is string errorMsg)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <div>@errorMsg</div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.modal').forEach(function (modalEl) {
+                if (modalEl.parentElement !== document.body) {
+                    document.body.appendChild(modalEl);
+                }
+            });
+        });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

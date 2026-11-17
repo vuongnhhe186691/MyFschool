@@ -1,0 +1,92 @@
+@page
+@model PRM_PRJ.Pages.Admin.NotificationsModel
+@{
+    ViewData["Title"] = "Thông báo Nhà trường";
+}
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card card-fpt">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-send-fill text-fpt me-2"></i>Phát hành Thông báo mới</h6>
+            </div>
+            <div class="card-body">
+                <form method="post" asp-page-handler="Create">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Tiêu đề thông báo *</label>
+                        <input asp-for="Input.Title" class="form-control" maxlength="200" placeholder="Ví dụ: Lịch nghỉ lễ / Thông báo họp phụ huynh..." required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Nội dung chi tiết *</label>
+                        <textarea asp-for="Input.Content" rows="5" class="form-control" placeholder="Nhập nội dung thông báo gửi tới Giáo viên, Học sinh & Phụ huynh..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-fpt w-100">
+                        <i class="bi bi-megaphone-fill me-1"></i> Gửi thông báo toàn trường
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card card-fpt">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold">Danh sách thông báo đã gửi (@Model.TotalItems)</h6>
+                <span class="small text-muted">Trang @Model.PageNumber / @Model.TotalPages</span>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.Notifications.Count == 0)
+                {
+                    <div class="p-4 text-center text-muted">Chưa có thông báo nào.</div>
+                }
+                else
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var item in Model.Notifications)
+                        {
+                            <div class="list-group-item p-3">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <h6 class="mb-0 fw-bold text-dark">@item.Title</h6>
+                                    <span class="badge bg-fpt-light text-fpt">@item.ReadCount lượt đã đọc</span>
+                                </div>
+                                <p class="mb-2 text-secondary small" style="white-space: pre-line;">@item.Content</p>
+                                <div class="d-flex justify-content-between text-muted" style="font-size: 0.78rem;">
+                                    <span><i class="bi bi-person me-1"></i>@item.CreatedBy</span>
+                                    <span><i class="bi bi-clock me-1"></i>@item.CreatedAt</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+            @if (Model.TotalPages > 1)
+            {
+                <div class="card-footer bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div class="small text-muted">
+                        Hiển thị @Model.Notifications.Count / @Model.TotalItems thông báo
+                    </div>
+                    <nav aria-label="Pagination">
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item @(Model.PageNumber <= 1 ? "disabled" : "")">
+                                <a class="page-link" asp-page="/Admin/Notifications" asp-route-PageNumber="@(Model.PageNumber - 1)">
+                                    <i class="bi bi-chevron-left"></i>
+                                </a>
+                            </li>
+                            @for (var p = Model.StartPage; p <= Model.EndPage; p++)
+                            {
+                                <li class="page-item @(p == Model.PageNumber ? "active" : "")">
+                                    <a class="page-link" asp-page="/Admin/Notifications" asp-route-PageNumber="@p">@p</a>
+                                </li>
+                            }
+                            <li class="page-item @(Model.PageNumber >= Model.TotalPages ? "disabled" : "")">
+                                <a class="page-link" asp-page="/Admin/Notifications" asp-route-PageNumber="@(Model.PageNumber + 1)">
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            }
+        </div>
+    </div>
+</div>

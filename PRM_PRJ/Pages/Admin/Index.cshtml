@@ -1,0 +1,207 @@
+@page
+@model PRM_PRJ.Pages.Admin.IndexModel
+@{
+    ViewData["Title"] = "Dashboard Quản trị";
+}
+
+<div class="hero-banner-fpt p-4 mb-4">
+    <div class="row align-items-center g-3">
+        <div class="col-md-8">
+            <span class="badge bg-white bg-opacity-25 text-white mb-2 px-3 py-1 rounded-pill">
+                <i class="bi bi-stars me-1"></i> MyFSchool Admin Portal
+            </span>
+            <h3 class="fw-bold mb-1">Chào mừng trở lại, Quản trị viên!</h3>
+            <p class="mb-0 opacity-75 small">
+                Quản lý người dùng, học sinh, phân lớp, bảng điểm, thời khóa biểu, thông báo và đơn từ trên một giao diện thống nhất.
+            </p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a asp-page="/Admin/Notifications" class="btn btn-light fw-semibold text-fpt rounded-3 px-3 me-2">
+                <i class="bi bi-megaphone-fill me-1"></i> Gửi thông báo
+            </a>
+            <a asp-page="/Admin/Users" class="btn btn-outline-light fw-semibold rounded-3 px-3">
+                <i class="bi bi-person-plus-fill me-1"></i> Tạo User
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card card-fpt anim-delay-1 h-100">
+            <div class="card-body d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="text-muted small fw-semibold">Tổng Người dùng</div>
+                    <div class="fs-3 fw-bold text-dark mt-1" data-count="@Model.TotalUsers">@Model.TotalUsers</div>
+                </div>
+                <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card card-fpt anim-delay-2 h-100">
+            <div class="card-body d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="text-muted small fw-semibold">Học sinh / Giáo viên</div>
+                    <div class="fs-3 fw-bold text-dark mt-1">
+                        <span data-count="@Model.TotalStudents">@Model.TotalStudents</span> /
+                        <span data-count="@Model.TotalTeachers">@Model.TotalTeachers</span>
+                    </div>
+                </div>
+                <div class="stat-icon"><i class="bi bi-mortarboard-fill"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card card-fpt anim-delay-3 h-100">
+            <div class="card-body d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="text-muted small fw-semibold">Lớp học / Môn học</div>
+                    <div class="fs-3 fw-bold text-dark mt-1">
+                        <span data-count="@Model.TotalClasses">@Model.TotalClasses</span> /
+                        <span data-count="@Model.TotalSubjects">@Model.TotalSubjects</span>
+                    </div>
+                </div>
+                <div class="stat-icon"><i class="bi bi-building-fill"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card card-fpt anim-delay-4 h-100">
+            <div class="card-body d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="text-muted small fw-semibold">Thông báo / Đơn từ</div>
+                    <div class="fs-3 fw-bold text-dark mt-1">
+                        <span data-count="@Model.TotalNotifications">@Model.TotalNotifications</span> /
+                        <span data-count="@Model.TotalApplications">@Model.TotalApplications</span>
+                    </div>
+                </div>
+                <div class="stat-icon"><i class="bi bi-bell-fill"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4 col-xl-2">
+        <a asp-page="/Admin/Users" class="quick-link-card d-block p-3 text-center">
+            <div class="stat-icon mx-auto mb-2"><i class="bi bi-people-fill"></i></div>
+            <div class="fw-bold small text-dark">Người dùng</div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <a asp-page="/Admin/Students" class="quick-link-card d-block p-3 text-center">
+            <div class="stat-icon mx-auto mb-2"><i class="bi bi-person-badge-fill"></i></div>
+            <div class="fw-bold small text-dark">Phân lớp</div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <a asp-page="/Admin/Grades" class="quick-link-card d-block p-3 text-center">
+            <div class="stat-icon mx-auto mb-2"><i class="bi bi-award-fill"></i></div>
+            <div class="fw-bold small text-dark">Bảng điểm</div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <a asp-page="/Admin/Timetables" class="quick-link-card d-block p-3 text-center">
+            <div class="stat-icon mx-auto mb-2"><i class="bi bi-calendar3-week-fill"></i></div>
+            <div class="fw-bold small text-dark">Thời khóa biểu</div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <a asp-page="/Admin/Notifications" class="quick-link-card d-block p-3 text-center">
+            <div class="stat-icon mx-auto mb-2"><i class="bi bi-megaphone-fill"></i></div>
+            <div class="fw-bold small text-dark">Thông báo</div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <a asp-page="/Admin/Applications" class="quick-link-card d-block p-3 text-center">
+            <div class="stat-icon mx-auto mb-2"><i class="bi bi-file-earmark-text-fill"></i></div>
+            <div class="fw-bold small text-dark">Đơn từ</div>
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card card-fpt h-100">
+            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-file-earmark-text text-fpt me-2"></i>Đơn từ mới nhất</h6>
+                <a asp-page="/Admin/Applications" class="btn btn-sm btn-outline-fpt">Xem tất cả</a>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.RecentApplications.Count == 0)
+                {
+                    <div class="p-4 text-center text-muted small">Chưa có đơn từ nào được gửi.</div>
+                }
+                else
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var app in Model.RecentApplications)
+                        {
+                            <div class="list-group-item px-3 py-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-semibold text-dark">@app.Title</span>
+                                    <small class="text-muted">@app.CreatedAt</small>
+                                </div>
+                                <p class="mb-1 text-secondary small text-truncate">@app.Content</p>
+                                <small class="text-fpt fw-medium">Người gửi: @app.CreatedBy</small>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card card-fpt h-100">
+            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-megaphone text-fpt me-2"></i>Thông báo gần đây</h6>
+                <a asp-page="/Admin/Notifications" class="btn btn-sm btn-outline-fpt">Quản lý</a>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.RecentNotifications.Count == 0)
+                {
+                    <div class="p-4 text-center text-muted small">Chưa có thông báo nào được phát hành.</div>
+                }
+                else
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var noti in Model.RecentNotifications)
+                        {
+                            <div class="list-group-item px-3 py-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-semibold text-dark">@noti.Title</span>
+                                    <small class="text-muted">@noti.CreatedAt</small>
+                                </div>
+                                <p class="mb-1 text-secondary small text-truncate">@noti.Content</p>
+                                <small class="text-muted">Người tạo: @noti.CreatedBy</small>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('[data-count]').forEach(el => {
+            const target = parseInt(el.getAttribute('data-count'), 10);
+            if (!target || target <= 0) return;
+            const duration = 650;
+            const start = performance.now();
+            function tick(now) {
+                const progress = Math.min((now - start) / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                el.textContent = Math.round(eased * target);
+                if (progress < 1) requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        });
+    </script>
+}
